@@ -1,4 +1,4 @@
-# fastify-plugin-example
+# fastify-pdf-export
 
 Fastify plugin template.
 
