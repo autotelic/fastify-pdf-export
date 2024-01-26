@@ -1,30 +1,30 @@
 import fastifyPlugin from 'fastify-plugin'
-import puppeteer from 'puppeteer'
-
-const defaultOutputOpts = {
-  format: 'A4',
-  margin: {
-    top: '20px',
-    right: '20px',
-    bottom: '20px',
-    left: '20px'
-  }
-}
+import { launch } from 'puppeteer'
 
 export async function pdfExport (options = {}) {
   const {
-    headless = 'new',
+    launchOptions = { headless: 'new', ...options.launchOptions },
     pdfUrl,
-    outputOpts = { ...defaultOutputOpts, ...options.outputOpts }
+    pdfOptions
   } = options
 
-  const browser = await puppeteer.launch({ headless })
-  const page = await browser.newPage()
+  try {
+    if (!pdfUrl) {
+      throw new Error('`pdfUrl` is required')
+    }
 
-  await page.goto(pdfUrl)
-  await page.pdf(outputOpts)
+    const browser = await launch(launchOptions)
+    const page = await browser.newPage()
 
-  return { browser, page }
+    await page.goto(pdfUrl)
+    const pdf = await page.pdf(pdfOptions)
+
+    await browser.close()
+
+    return { pdf }
+  } catch (error) {
+    return { error: `fastify-pdf-export: ${error.message}` }
+  }
 }
 
 const fastifyPdfExport = fastifyPlugin(async fastify => {

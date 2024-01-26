@@ -5,12 +5,22 @@ export default async function main (fastify, options) {
 
   fastify.get('/', async (request, reply) => {
     const { pdfExport } = fastify
-    const { browser, page } = await pdfExport({
+    const { pdf } = await pdfExport({
+      launchOptions: {
+        headless: true
+      },
       pdfUrl: 'http://localhost:8080',
-      outputOpts: { path: 'output.pdf' }
+      pdfOptions: {
+        path: 'output.pdf',
+        format: 'A4',
+        margin: {
+          top: '20px',
+          right: '20px',
+          bottom: '20px',
+          left: '20px'
+        }
+      }
     })
-    const pdf = await page.pdf()
-    await browser.close()
     reply.type('application/pdf').send(pdf)
   })
 }
