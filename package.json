@@ -15,7 +15,7 @@
   "scripts": {
     "build": "npx tailwindcss -i ./example/input.css -o ./public/output.css && cp example/index.html public/index.html",
     "dev": "npm run build && concurrently \"npx http-server\" \"fastify start -l debug -P example/index.js\"",
-    "test": "tap",
+    "test": "npm run build && tap",
     "lint": "eslint .",
     "test:types": "tsd",
     "validate": "npm run lint && npm test && npm run test:types"

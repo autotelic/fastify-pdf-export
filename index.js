@@ -13,6 +13,10 @@ export async function pdfExport (options = {}) {
       throw new Error('`pdfUrl` is required')
     }
 
+    if (pdfOptions && pdfOptions.path) {
+      throw new Error('`pdfOptions.path` is not supported')
+    }
+
     const browser = await launch(launchOptions)
     const page = await browser.newPage()
 

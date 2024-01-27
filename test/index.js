@@ -103,11 +103,34 @@ test('should set pdfOptions', async ({ equal, teardown }) => {
   equal(response.statusCode, 200)
   equal(response.headers['content-type'], 'application/pdf')
 
-  const { getPage } = await PDFDocument.load(response.rawPayload)
-  const { getSize } = getPage(0)
-  const { width, height } = getSize()
+  const pdf = await PDFDocument.load(response.rawPayload)
+  const page = pdf.getPage(0)
+  const { width, height } = page.getSize()
 
   // A3 size in points (1 point = 1/72 inch)
   equal(Math.round(width), 843)
   equal(Math.round(height), 1191)
+})
+
+test('should return error is pdfOptions.path is set', async ({ equal, same, teardown }) => {
+  teardown(async () => app.close())
+  const app = buildApp({
+    pdfExportOpts: {
+      pdfUrl: mockUrl,
+      pdfOptions: {
+        path: 'some/path'
+      }
+    }
+  })
+  await app.ready()
+
+  const response = await app.inject({
+    method: 'GET',
+    url: '/'
+  })
+
+  equal(response.statusCode, 200)
+  same(response.json(), {
+    message: 'fastify-pdf-export: `pdfOptions.path` is not supported'
+  })
 })
