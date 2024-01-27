@@ -11,72 +11,56 @@ npm install @autotelic/fastify-pdf-export
 ## Usage
 
 ```js
-const fastify = require('fastify')()
-const fastifyPdfExport = require('fastify-pdf-export')
+import Fastify from 'fastify'
+import fastifyPdfExport from 'fastify-pdf-export'
+
+const fastify = Fastify()
 
 fastify.register(fastifyPdfExport)
 
-fastify.listen(3000, err => {
+fastify.get('/', async (request, reply) => {
+    const { pdfExport } = fastify
+    const { pdf } = await pdfExport({
+      pdfUrl: 'http://example.com'
+    })
+    reply.type('application/pdf').send(pdf)
+  })
+
+fastify.listen({ port: 3000 }, err => {
   if (err) throw err
   console.log(`Server listening on ${fastify.server.address().port}`)
 })
 ```
 
-### Exporting a PDF
+## API
 
-```javascript
-fastify.pdfExport({
+The `fastify-pdf-export` plugin extends your Fastify instance with a new method: `pdfExport`. This method is used to generate PDFs from provided URLs using Puppeteer.
+
+### Methods
+
+#### `pdfExport(options)`
+
+Generates a PDF from the specified URL.
+
+##### Options
+
+- `pdfUrl` (string): **Required**.The URL of the webpage to be converted into a PDF.
+- `pdfOptions` (`PDFOptions`): **Optional**. Configuration options for the PDF generation, as defined by Puppeteer's [`PDFOptions`](https://pptr.dev/api/puppeteer.pdfoptions). This includes settings such as `format`, `margin`, `printBackground`, etc.
+- `launchOptions` (`BrowserLaunchArgumentOptions`): **Optional**. Configuration options for launching the Puppeteer browser instance, as defined by Puppeteer's [`BrowserLaunchArgumentOptions`](https://pptr.dev/api/puppeteer.browserlaunchargumentoptions). This includes settings such as `headless`, `args`, `ignoreHTTPSErrors`, etc. By default, `headless` is set to `new`.
+
+##### Returns
+
+A promise that resolves to an object containing:
+
+- `pdf`: A `Buffer` containing the generated PDF data.
+- `error`: An error object, if any error occurred during the PDF generation process.
+
+##### Example
+
+```js
+const { pdf, error } = await fastify.pdfExport({
   pdfUrl: 'http://example.com',
-  outputOpts: {
-    format: 'A4',
-    margin: {
-      top: '20px',
-      right: '20px',
-      bottom: '20px',
-      left: '20px'
-    }
-  }
-}).then(({ browser, page }) => {
-  // PDF export is complete
-  // You can close the browser and handle the page object as needed
-  browser.close()
-}).catch(error => {
-  console.error(error)
-})
+  pdfOptions: { format: 'A4' },
+  launchOptions: { headless: 'new' }
+});
 ```
-
-## Options
-
-When calling `pdfExport`, you can pass an options object with the following properties:
-
-- **pdfUrl** (required): The URL of the web page to be converted to PDF.
-- **outputOpts** (optional): Options for the PDF output, including format and margins. Defaults to A4 size with 20px margins.
-- **headless** (optional): Whether to launch Puppeteer in headless mode. Defaults to 'new'.
-
-## Error Handling
-
-Errors are thrown with detailed messages, enabling easy debugging and error handling in your application.
-
-## Contributing
-
-Contributions to `fastify-pdf-export` are welcome. Please follow the standard contributing guidelines of Fastify.
-
-## License
-
-This plugin is licensed under [specify license].
-
----
-
-This documentation provides a basic guide for installing, using, and understanding the `fastify-pdf-export` plugin. Adjustments can be made based on your specific requirements and any additional functionality your plugin might have.
-
-## Triggering a Release
-
-_Prerequisite: Update repository access for the shared [NPM_PUBLISH_TOKEN](https://github.com/organizations/autotelic/settings/secrets/actions/NPM_PUBLISH_TOKEN) secret._
-
-Trigger the release workflow via a tag
-
-  ```sh
-  git checkout main && git pull
-  npm version { minor | major | path }
-  git push --follow-tags
-  ```
