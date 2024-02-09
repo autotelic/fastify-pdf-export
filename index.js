@@ -1,10 +1,39 @@
 import fastifyPlugin from 'fastify-plugin'
+import { launch } from 'puppeteer'
 
-async function pluginTemplate (fastify, options) {}
+export async function pdfExport (options = {}) {
+  const {
+    launchOptions = { headless: 'new', ...options.launchOptions },
+    pdfUrl,
+    pdfOptions
+  } = options
 
-const fastifyPluginTemplate = fastifyPlugin(pluginTemplate, {
-  name: 'fastify-plugin-template'
-})
+  try {
+    if (!pdfUrl) {
+      throw new Error('`pdfUrl` is required')
+    }
 
-export { fastifyPluginTemplate }
-export default fastifyPluginTemplate
+    if (pdfOptions && pdfOptions.path) {
+      throw new Error('`pdfOptions.path` is not supported')
+    }
+
+    const browser = await launch(launchOptions)
+    const page = await browser.newPage()
+
+    await page.goto(pdfUrl)
+    const pdf = await page.pdf(pdfOptions)
+
+    await browser.close()
+
+    return { pdf }
+  } catch (error) {
+    return { error: `fastify-pdf-export: ${error.message}` }
+  }
+}
+
+const fastifyPdfExport = fastifyPlugin(async fastify => {
+  fastify.decorate('pdfExport', pdfExport)
+}, { name: 'fastify-pdf-export' })
+
+export { fastifyPdfExport }
+export default fastifyPdfExport

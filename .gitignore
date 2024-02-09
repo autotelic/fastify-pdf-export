@@ -65,3 +65,6 @@ profile*
 
 # Lockfile
 package-lock.json
+
+# build
+public

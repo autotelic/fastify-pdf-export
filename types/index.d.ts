@@ -1,10 +1,13 @@
 import type { FastifyPluginCallback } from 'fastify'
+import { BrowserLaunchArgumentOptions, PDFOptions } from 'puppeteer'
 
-export interface PluginOptions {
-  mandatory: string
+export interface FastifyPdfExportOptions {
+  pdfUrl: string
+  pdfOptions?: PDFOptions
+  launchOptions?: BrowserLaunchArgumentOptions
 }
 
-declare const fastifyPluginTemplate: FastifyPluginCallback<PluginOptions>
+declare const fastifyPdfExport: FastifyPluginCallback<FastifyPdfExportOptions>
 
-export default fastifyPluginTemplate
-export { fastifyPluginTemplate }
+export default fastifyPdfExport
+export { fastifyPdfExport }
