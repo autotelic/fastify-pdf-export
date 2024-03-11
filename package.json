@@ -33,7 +33,7 @@
   "homepage": "https://github.com/autotelic/fastify-pdf-export#readme",
   "dependencies": {
     "fastify-plugin": "^4.5.1",
-    "puppeteer": "^21.9.0"
+    "puppeteer": "^22.4.1"
   },
   "devDependencies": {
     "@autotelic/eslint-config-js": "^0.3.0",
