@@ -11,25 +11,25 @@ npm install @autotelic/fastify-pdf-export
 ## Usage
 
 ```js
-import Fastify from 'fastify'
-import fastifyPdfExport from 'fastify-pdf-export'
+import Fastify from 'fastify';
+import fastifyPdfExport from 'fastify-pdf-export';
 
-const fastify = Fastify()
+const fastify = Fastify();
 
-fastify.register(fastifyPdfExport)
+fastify.register(fastifyPdfExport);
 
 fastify.get('/', async (request, reply) => {
-    const { pdfExport } = fastify
-    const { pdf } = await pdfExport({
-      pdfUrl: 'http://example.com'
-    })
-    reply.type('application/pdf').send(pdf)
-  })
+  const { pdfExport } = fastify;
+  const { pdf } = await pdfExport({
+    pdfUrl: 'http://example.com',
+  });
+  reply.type('application/pdf').send(pdf);
+});
 
-fastify.listen({ port: 3000 }, err => {
-  if (err) throw err
-  console.log(`Server listening on ${fastify.server.address().port}`)
-})
+fastify.listen({ port: 3000 }, (err) => {
+  if (err) throw err;
+  console.log(`Server listening on ${fastify.server.address().port}`);
+});
 ```
 
 ## API
@@ -48,6 +48,10 @@ Generates a PDF from the specified URL.
 - `pdfOptions` (`PDFOptions`): **Optional**. Configuration options for the PDF generation, as defined by Puppeteer's [`PDFOptions`](https://pptr.dev/api/puppeteer.pdfoptions). This includes settings such as `format`, `margin`, `printBackground`, etc.
 - `launchOptions` (`BrowserLaunchArgumentOptions`): **Optional**. Configuration options for launching the Puppeteer browser instance, as defined by Puppeteer's [`BrowserLaunchArgumentOptions`](https://pptr.dev/api/puppeteer.browserlaunchargumentoptions). This includes settings such as `headless`, `args`, `ignoreHTTPSErrors`, etc. By default, `headless` is set to `new`.
 
+> [!NOTE]
+> Some docker environments [experience](https://github.com/puppeteer/puppeteer/issues/11640) [issues](https://github.com/puppeteer/puppeteer/issues/12189) [with](https://github.com/puppeteer/puppeteer/issues/12864) [timeouts](https://github.com/puppeteer/puppeteer/issues/13048).
+> One [possible solution](https://github.com/puppeteer/puppeteer/issues/1610#issuecomment-352197261) is to set `headless: false` and add the `--headless` flag to `args`, as `headless: true` and `headless: new` add other invisible flags to the `args` array.
+
 ##### Returns
 
 A promise that resolves to an object containing:
@@ -61,6 +65,6 @@ A promise that resolves to an object containing:
 const { pdf, error } = await fastify.pdfExport({
   pdfUrl: 'http://example.com',
   pdfOptions: { format: 'A4' },
-  launchOptions: { headless: 'new' }
+  launchOptions: { headless: 'new' },
 });
 ```
